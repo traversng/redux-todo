@@ -1,7 +1,7 @@
 {
-  "name": "redux-simple-starter",
+  "name": "redux-todo",
   "version": "1.0.0",
-  "description": "Simple starter package for Redux with React and Babel support",
+  "description": "Simple Redux todo app to learn the basics of Redux from the docs",
   "main": "index.js",
   "repository": "git@github.com:StephenGrider/ReduxSimpleStarter.git",
   "scripts": {
@@ -32,6 +32,7 @@
     "react-dom": "^0.14.3",
     "react-redux": "^4.0.0",
     "react-router": "^2.0.1",
-    "redux": "^3.0.4"
+    "redux": "^3.0.4",
+    "youtube-api-search": "0.0.5"
   }
 }

@@ -1,15 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
-import { createStore, applyMiddleware } from 'redux';
+import ToggleString from './components/app';
+import HeaderToggle from './components/header';
 
-import App from './components/app';
-import reducers from './reducers';
+const API_KEY = "AIzaSyDsEtxwEc2OWbfk0xYY2HwCMccOldy7DgM";
 
-const createStoreWithMiddleware = applyMiddleware()(createStore);
 
-ReactDOM.render(
-  <Provider store={createStoreWithMiddleware(reducers)}>
-    <App />
-  </Provider>
-  , document.querySelector('.container'));
+// Create a new component. This component should produce some HTML
+
+// const means that the value for App will never change
+const App = () => {
+    return (
+        <div>
+            <HeaderToggle />
+            <ToggleString />
+        </div>
+    )
+};
+
+// Take this components generated HTML and put it on the DOM
+
+ReactDOM.render(<App />, document.querySelector('.container'));
