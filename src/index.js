@@ -9,43 +9,63 @@ import { createStore, combineReducers, applyMiddleware, bindActionCreators } fro
 // If the action.type is 'ADD_PHRASE' it returns the action.text etc.
 // Default initial state is a single string of 'phraseReducer'
 // Returns an object with the text and an incremented id
-
-const phraseReducer = (state = '', action) => {
-	console.log('state: ', state)
+const todoReducer = (state, action) => {
 	switch(action.type) {
-		case 'ADD_PHRASE':
+		case 'ADD_TODO':
 		return {
-			id: state.length + 1,
-			text: action.text.trim()
+			text: action.text,
+			id: action.id,
+			completed: false
 		}
+
+		case 'TOGGLE_TODO':
+		if (state.id !== action.id) {
+			return state
+		}
+		return Object.assign({}, state, {
+			completed: !state.completed
+		})
+
+		default: 
+	 		return state
 	}
-	return state
 }
 
 // =================== REDUCER
 // The phraseListReducer changes the state. if the action.type is 'ADD_PHRASE' 
 // it will return the new state as in array with the newly added phrase
-const phraseListReducer = (state = [], action) => {
+
+const todoListReducer = (state = [], action) => {
 	switch(action.type) {
-		case 'ADD_PHRASE':
+		case 'ADD_TODO': 
 		return [
 			...state,
-			phraseReducer(state, action)
+			todoReducer(undefined, action)
 		]
+
+		case 'TOGGLE_TODO':
+		return state.map(t => todo(t, action))
+
+		default: 
+			return state
 	}
-	return state
 }
 
+const visibilityFilter = (state = 'SHOW_ALL', action) => {
+	switch(action.type) {
+		case 'SET_VISIBILITY_FILTER':
+			return action.filter
+		default: 
+			return state
+	}
+}
 // =================== COMBINE REDUCERS
 // The combineReducers function is a helper function that turns an object whose values are 
 // different reducing functions into a single reducing function that you can pass into createStore.
 // In this case it is the const reducers. 
-const reducers = combineReducers({ 
-	
-	// The keys of the reducers (activePhrase, removedPhrase) will be available on the state object
-	phrase: phraseReducer,
-	phrases: phraseListReducer
-
+const todoApp = combineReducers({
+	todoListReducer,
+	visibilityFilter
 })
 
 
@@ -70,72 +90,59 @@ const middleWare = applyMiddleware(actionLogger)
 // Returns: store which is the complete state of the application
 // The only way to change the state is through dispatching actions
 // The store can be subscribed to, to receive updates when it changes
-const store = createStore( reducers,{ phrases: [{id: 1, text: 'initial phrase'}] }, middleWare )
+const store = createStore( todoApp,{ /*Initial State Goes Here*/ }] }, middleWare )
 
 
 // =================== ACTION CREATORS
-const newPhrase = ( phrase ) => { 
-	console.log('newPhrase!!', phrase)
-	return { type: 'ADD_PHRASE', text: phrase } 
-}
-
-
-// =================== REACT COMPONENTS
-// PhraseInput 
-
-const PhraseItem = ( props ) => {
-	return <li>{ props.phrase.text }</li>
-}
-
-class PhraseInput extends Component{
-	render(){
-		let input
-		return(
-			<div> 
-				<form onSubmit={ e => { 
-					e.preventDefault() 
-					store.dispatch( { type: 'ADD_PHRASE', text: input.value } )
-					input.value = ''
-				}}>
-					<input ref={node => {
-          				input = node
-        			}}/>
-					<button onClick={ this.addPhrase }>Add Phrase</button>
-				</form>
-			</div>	
-		)
+let nextTodoId = 0
+const addTodo = (text) => {
+	return {
+		type: 'ADD_TODO',
+		id: nextTodoId++
+		text
 	}
 }
 
-const PhraseList = () => {
-	let phrases = store.getState().phrases
-	console.log('store in PhraseList: ', store.getState())
-	return(
+const setVisibilityFilter = (filter) => {
+	return{
+		type: 'SET_VISIBILITY_FILTER',
+		filter
+	}
+}
+
+const toggleTodo = (id) => {
+	return {
+		type: 'TOGGLE_TODO',
+		id
+	}
+}
+
+// =================== REACT COMPONENTS 
+const todoItem = ({ onClick, completed, text }) => (
+	<li 
+		onClick={ onClick }
+		style={{ textDecoration: completed ? 'line-through' : 'none' }}
+	>
+	{ text }
+	</li>
+)
+
+const todoList = ({ todos, onTodoClick }) => {
 	<ul>
-    	{ phrases.map( (phrase) => <PhraseItem key={ phrase.id } phrase={ phrase }/> ) }
-  	</ul>
-  	)
+		{ todos.map(todo => 
+			<Todo
+			key={ todo.id }
+		) }
+	</ul>
 }
 
-const App = () => {
-	return (
-		<div>
-			<PhraseInput />
-			<PhraseList props={ store }/>
-		</div>
-	)
-}
-
-
-
+// =================== RENDER FUNCTION
 const render = () => {
-	console.log('Store in render: ', store)
-
 	ReactDOM.render( 
 		<Provider store={ store }>
 			<App 
 				// bindActionCreators makes the actionCreators available on via the props object
-				{ ...bindActionCreators( { newPhrase } , store.dispatch) } 
+				{ ...bindActionCreators( { /*ACTION CREATORS GO HERE*/ } , store.dispatch) } 
 			/>
 		</Provider>, document.querySelector('.container')
 	)
