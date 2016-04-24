@@ -17,15 +17,13 @@ const counter = () => {
 }
 
 let count = counter();
-const phraseReducer = (state, action) => {
-	if(!state) {
-		state = true
-	}
+const phraseReducer = (state = '', action) => {
+	console.log('state: ', state)
 	switch(action.type) {
 		case 'ADD_PHRASE':
 		return {
-			id: count(),
-			text: action.text
+			id: state.length + 1,
+			text: action.text.trim()
 		}
 	}
 	return state
@@ -39,7 +37,7 @@ const phraseListReducer = (state = [], action) => {
 		case 'ADD_PHRASE':
 		return [
 			...state,
-			phraseReducer(undefined, action)
+			phraseReducer(state, action)
 		]
 	}
 	return state
@@ -79,7 +77,7 @@ const middleWare = applyMiddleware(actionLogger)
 // Returns: store which is the complete state of the application
 // The only way to change the state is through dispatching actions
 // The store can be subscribed to, to receive updates when it changes
-const store = createStore( reducers,{ phrases: [{id: 0, text: 'initial phrase'}] }, middleWare )
+const store = createStore( reducers,{ phrases: [{id: 1, text: 'initial phrase'}] }, middleWare )
 
 
 // =================== ACTION CREATORS
@@ -103,7 +101,7 @@ class PhraseInput extends Component{
 			<div> 
 				<form onSubmit={ e => { 
 					e.preventDefault() 
-					store.dispatch(newPhrase(input.value))
+					store.dispatch( { type: 'ADD_PHRASE', text: input.value } )
 					input.value = ''
 				}}>
 					<input ref={node => {
@@ -118,6 +116,7 @@ class PhraseInput extends Component{
 
 const PhraseList = () => {
 	let phrases = store.getState().phrases
+	console.log('store in PhraseList: ', store.getState())
 	return(
 	<ul>
     	{ phrases.map( (phrase) => <PhraseItem key={ phrase.id } phrase={ phrase }/> ) }
