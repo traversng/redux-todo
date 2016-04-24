@@ -9,14 +9,7 @@ import { createStore, combineReducers, applyMiddleware, bindActionCreators } fro
 // If the action.type is 'ADD_PHRASE' it returns the action.text etc.
 // Default initial state is a single string of 'phraseReducer'
 // Returns an object with the text and an incremented id
-const counter = () => {
-  var num = 0;
-  return function closedCount() {
-    return ++num;
-  };
-}
 
-let count = counter();
 const phraseReducer = (state = '', action) => {
 	console.log('state: ', state)
 	switch(action.type) {
